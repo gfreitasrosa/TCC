@@ -40,7 +40,7 @@ document.getElementById("save-trail").addEventListener("click", function () {
         const trailCard = document.createElement("div");
         trailCard.classList.add("trail-card");
         trailCard.innerText = trailName;
-        
+
         // Add click event to open the trail screen
         trailCard.addEventListener("click", function () {
             displayTrailScreen(trailName, trailDate, trailReminder);
@@ -64,81 +64,109 @@ function displayTrailScreen(name, date, reminder) {
     const main = document.getElementById("main");
     main.innerHTML = ""; // Clear the main area initially
 
-    // Only display task management content if there are tasks
+    // Create the main structure for trail details and tasks
     main.innerHTML = `
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-			<div syle="display: flex; flex-direction: column; background-color: green;">
-				<h2>${name}</h2>
-				<p>Completion Date: ${date}</p>
-				<label>
-					<input type="checkbox" ${reminder ? "checked" : ""}> Reminder
-				</label>
-			</div>
-			<div style="display: flex; flex-direction: row; gap: 20px; width:1400px; height:900px">
-				<!-- Task list and create task button -->
-				<div style="display: flex; flex-direction: column; gap: 10px; width: 200px; background-color: #516ED045; padding: 20px; border-radius: 10px;">
-					<button id="create-task">Create Task</button>
-					<div id="task-list" style="margin-top: 10px;"></div>
-				</div>
+    <div style="display: flex; flex-direction: column; width: 100%; gap: 20px; height: 100%;">
+    <!-- Top section: Name, Date, Reminder, and Progress -->
+    <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 10px; background-color: #516ED045; padding: 20px; border-radius: 10px; width: 100%; box-sizing: border-box;">
+    <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; position: relative">
+    <ul style="display: flex; flex-wrap: nowrap; justify-content: space-around; align-content: center; list-style-type: none">
+    <li style="text-decoration: none; display: inline-block;"><label>
+    <input type="checkbox" ${reminder ? "checked" : ""}> Reminder
+    </label></li>
+    <li style="text-decoration: none; display: inline-block;"><h2>${name}</h2></li>
+    <li style="text-decoration: none; display: inline-block;"><h2 id="progress-display" style="font-size: 18px; color: green; font-weight: bold;">Progress: 0%</h2></li>
+    <li style="text-decoration: none; display: inline-block;"><h2>Data final: ${date}</h2></li>
+    </ul>
+    </div>
+    </div>
 
-				<!-- Task details area -->
-				<div id="task-details" style="flex-grow: 1; background-color: #516ED045; padding: 20px; border-radius: 10px;">
-					<h3>Select a task to view details</h3>
-				</div>
-			</div>
-		</div>
+    <!-- Task management section -->
+    <div style="display: flex; flex-direction: row; gap: 20px; width: 100%; height: 100%; box-sizing: border-box;">
+    <!-- Task list -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 200px; max-height: 100%; background-color: #516ED045; padding: 20px; border-radius: 10px; box-sizing: border-box; overflow-y: auto;">
+    <button id="create-task" style="margin-bottom: 10px;">Create Task</button>
+    <div id="task-list" style="flex-grow: 1; overflow-y: auto; width: 100%;"></div>
+    </div>
+
+    <!-- Task details -->
+    <div id="task-details" style="flex-grow: 1; width: calc(100% - 220px); max-height: 100%; background-color: #516ED045; padding: 20px; border-radius: 10px; box-sizing: border-box; overflow-y: auto;">
+    <h3>Select a task to view details</h3>
+    </div>
+    </div>
+    </div>
     `;
 
-    // Event listener to create tasks
-    document.getElementById("create-task").addEventListener("click", function () {
-        const taskName = prompt("Enter task name:");
-        if (taskName) {
-            const taskItem = document.createElement("p");
-            taskItem.innerText = taskName;
-            taskItem.classList.add("task-item");
-            taskItem.addEventListener("click", function () {
-                displayTaskDetails(taskName);
-            });
-            document.getElementById("task-list").appendChild(taskItem);
-        }
-    });
+    const createTaskButton = document.getElementById("create-task");
+    if (createTaskButton) {
+        createTaskButton.addEventListener("click", function () {
+            const taskName = prompt("Enter task name:");
+            if (taskName) {
+                const taskId = `task-${Date.now()}`; // Generate unique ID
+                const taskItem = document.createElement("p");
+                taskItem.innerText = taskName;
+                taskItem.classList.add("task-item");
+                taskItem.dataset.id = taskId;
+
+                taskItem.addEventListener("click", function () {
+                    displayTaskDetails(taskName, taskId);
+                });
+
+                const taskList = document.getElementById("task-list");
+                if (taskList) taskList.appendChild(taskItem);
+
+                // Update progress
+                updateProgress();
+            }
+        });
+    }
+
+    updateProgress();
 }
 
+
+
 // Function to display task details
-function displayTaskDetails(taskName) {
+function displayTaskDetails(taskName, taskId) {
     const taskDetailsContainer = document.getElementById("task-details");
     taskDetailsContainer.innerHTML = `
-        <h3>Task Details</h3>
-        <p>Task Name: ${taskName}</p>
-        <p>Status: 
-            <select>
-                <option>Ongoing</option>
-                <option>Concluded</option>
-            </select>
-        </p>
-        <button onclick="deleteTask('${taskName}')">Delete Task</button>
-        <textarea placeholder="Task notes..." style="resize:none; width: 100%; height: 650px; margin-top: 10px;"></textarea>
+    <h3>Task Details</h3>
+    <p>Task Name: ${taskName}</p>
+    <p>Status:
+    <select>
+    <option>Ongoing</option>
+    <option>Concluded</option>
+    </select>
+    </p>
+    <button onclick="deleteTask('${taskId}')">Delete Task</button>
+    <textarea placeholder="Task notes..." style="resize:none; width: 100%; height: 150px; margin-top: 10px;"></textarea>
     `;
 }
 
 // Function to delete a task
-function deleteTask(taskName) {
+function deleteTask(taskId) {
     const taskList = document.getElementById("task-list");
-    const tasks = Array.from(taskList.children);
-    tasks.forEach(task => {
-        if (task.innerText === taskName) {
-            task.remove();
-        }
-    });
+    const taskToDelete = Array.from(taskList.children).find(
+        task => task.dataset.id === taskId
+    );
+    if (taskToDelete) taskToDelete.remove();
     document.getElementById("task-details").innerHTML = "<h3>Select a task to view details</h3>";
     updateProgress();
 }
 
-// Function to update the progress percentage
+// Function to update progress
 function updateProgress() {
-    const totalTasks = document.getElementById("task-list").childElementCount;
-    const completedTasks = Array.from(document.getElementById("task-list").children).filter(task => 
-        task.classList.contains("concluded")).length;
+    const taskList = document.getElementById("task-list");
+    if (!taskList) return;
+
+    const totalTasks = taskList.childElementCount;
+    const completedTasks = Array.from(taskList.children).filter(task =>
+    task.classList.contains("concluded")
+    ).length;
+
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-    document.querySelector("#main p:nth-child(5)").innerText = `Progress: ${progress.toFixed(0)}%`;
+    const progressDisplay = document.getElementById("progress-display");
+    if (progressDisplay) {
+        progressDisplay.innerText = `Progress: ${progress.toFixed(0)}%`;
+    }
 }
