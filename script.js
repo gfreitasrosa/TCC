@@ -139,9 +139,32 @@ function displayTaskDetails(taskName, taskId) {
     </select>
     </p>
     <button onclick="deleteTask('${taskId}')">Delete Task</button>
-    <textarea placeholder="Task notes..." style="resize:none; width: 100%; height: 150px; margin-top: 10px;"></textarea>
+    <textarea id="task-notes" placeholder="Task notes..." style="resize:none; width: 100%; height: 450px; margin-top: 10px;"></textarea>
     `;
+
+    tinymce.init({
+        selector: '#task-notes', // Target the textarea with id "task-notes"
+        plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+        toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image | code',
+        menubar: false, // Optional: Disable the menu bar
+        statusbar: false, // Optional: Disable the status bar
+    });
 }
+
+// Change font size dynamically
+function changeFontSize() {
+    const size = prompt("Enter font size (e.g., 16px, 20px, etc.):");
+    if (size) {
+        document.execCommand('fontSize', false, size);
+    }
+}
+
+// Change font family
+function changeFontFamily(selectElement) {
+    const font = selectElement.value;
+    document.execCommand('fontName', false, font);
+}
+
 
 // Function to delete a task
 function deleteTask(taskId) {
@@ -150,6 +173,11 @@ function deleteTask(taskId) {
         task => task.dataset.id === taskId
     );
     if (taskToDelete) taskToDelete.remove();
+
+    // Clean up TinyMCE editor if it's active
+    if (tinymce.get('task-notes')) {
+        tinymce.get('task-notes').remove(); // Destroy TinyMCE instance
+    }
     document.getElementById("task-details").innerHTML = "<h3>Select a task to view details</h3>";
     updateProgress();
 }
