@@ -133,38 +133,53 @@ function displayTaskDetails(taskName, taskId) {
     <h3>Task Details</h3>
     <p>Task Name: ${taskName}</p>
     <p>Status:
-    <select>
-    <option>Ongoing</option>
-    <option>Concluded</option>
+    <select id="task-status">
+    <option value="Ongoing">Ongoing</option>
+    <option value="Concluded">Concluded</option>
     </select>
     </p>
     <button onclick="deleteTask('${taskId}')">Delete Task</button>
     <textarea id="task-notes" placeholder="Task notes..." style="resize:none; width: 100%; height: 450px; margin-top: 10px;"></textarea>
     `;
 
+    // Add event listener to status change dropdown
+    const statusDropdown = document.getElementById("task-status");
+    statusDropdown.addEventListener("change", function () {
+        updateTaskStatus(taskId, statusDropdown.value); // Update task status
+    });
+
     tinymce.init({
         selector: '#task-notes', // Target the textarea with id "task-notes"
-        plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
-        toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image | code',
+        plugins: 'advlist autolink lists link image charmap preview anchor pagebreak',
+        toolbar: 'undo redo | bold italic | fontfamily fontsize | alignleft aligncenter alignright | bullist numlist outdent indent | link | code', // Ensure fontsizeselect is in the toolbar
         menubar: false, // Optional: Disable the menu bar
         statusbar: false, // Optional: Disable the status bar
+        fontsize_formats: '8px 10px 12px 14px 16px 18px 24px 36px', // Custom font sizes
+        font_formats: 'Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;Georgia=georgia,serif;Times New Roman=times new roman,times,serif;Verdana=verdana,sans-serif', // Set available fonts
+        image_advtab: false, // Disable advanced image settings
+        file_picker_callback: function(callback, value, meta) {
+            if (meta.filetype === 'image') {
+                alert('Image uploading is disabled.');
+                return false;
+            }
+        },
     });
 }
 
-// Change font size dynamically
-function changeFontSize() {
-    const size = prompt("Enter font size (e.g., 16px, 20px, etc.):");
-    if (size) {
-        document.execCommand('fontSize', false, size);
+//Function to update the task status
+function updateTaskStatus(taskId, status) {
+    const taskItem = document.querySelector(`[data-id="${taskId}"]`);
+    if (taskItem) {
+        // Mark the task as concluded or ongoing based on status
+        if (status === "Concluded") {
+            taskItem.classList.add("concluded");
+        } else {
+            taskItem.classList.remove("concluded");
+        }
+        // Update the progress after changing task status
+        updateProgress();
     }
 }
-
-// Change font family
-function changeFontFamily(selectElement) {
-    const font = selectElement.value;
-    document.execCommand('fontName', false, font);
-}
-
 
 // Function to delete a task
 function deleteTask(taskId) {
