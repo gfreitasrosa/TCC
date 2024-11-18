@@ -1,3 +1,27 @@
+// Open and close popup
+document.getElementById('trail-popup').addEventListener('click', () => {
+    document.getElementById('popup').style.display = 'block';
+});
+
+document.getElementById('cancel-trail').addEventListener('click', () => {
+    document.getElementById('popup').style.display = 'none';
+});
+
+// Adjust popup size dynamically
+function adjustPopupSize() {
+    const popup = document.querySelector('.popup-content');
+    if (window.innerWidth < 500) {
+        popup.style.width = '90%';
+    } else {
+        popup.style.width = '400px'; // Default width
+    }
+}
+
+// Call on resize and load
+window.addEventListener('resize', adjustPopupSize);
+adjustPopupSize();
+
+
 // Function to open the popup for creating a new trail
 function openTrailPopup() {
     setMinDate(); // Ensure date validation is applied
@@ -69,13 +93,13 @@ function displayTrailScreen(name, date, reminder) {
     <div style="display: flex; flex-direction: column; width: 100%; gap: 20px; height: 100%;">
     <!-- Top section: Name, Date, Reminder, and Progress -->
     <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 10px; background-color: #516ED045; padding: 20px; border-radius: 10px; width: 100%; box-sizing: border-box;">
-    <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; position: relative">
-    <ul style="display: flex; flex-wrap: nowrap; justify-content: space-around; align-content: center; list-style-type: none">
+    <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; position: relative;">
+    <ul id="traildisp" style="display: flex; flex-wrap: nowrap; justify-content: space-around; align-content: center; list-style-type: none;">
     <li style="text-decoration: none; display: inline-block;"><label>
-    <input type="checkbox" ${reminder ? "checked" : ""}> Reminder
+    <input type="checkbox" ${reminder ? "checked" : ""}> Lembrete
     </label></li>
     <li style="text-decoration: none; display: inline-block;"><h2>${name}</h2></li>
-    <li style="text-decoration: none; display: inline-block;"><h2 id="progress-display" style="font-size: 18px; color: green; font-weight: bold;">Progress: 0%</h2></li>
+    <li style="text-decoration: none; display: inline-block;"><h2 id="progress-display" style="font-size: 18px; color: green; font-weight: bold;">Progresso: 0%</h2></li>
     <li style="text-decoration: none; display: inline-block;"><h2>Data final: ${date}</h2></li>
     </ul>
     </div>
@@ -85,13 +109,13 @@ function displayTrailScreen(name, date, reminder) {
     <div style="display: flex; flex-direction: row; gap: 20px; width: 100%; height: 100%; box-sizing: border-box;">
     <!-- Task list -->
     <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 200px; max-height: 100%; background-color: #516ED045; padding: 20px; border-radius: 10px; box-sizing: border-box; overflow-y: auto;">
-    <button id="create-task" style="margin-bottom: 10px;">Create Task</button>
+    <button id="create-task" style="margin-bottom: 10px;">Criar Task</button>
     <div id="task-list" style="flex-grow: 1; overflow-y: auto; width: 100%;"></div>
     </div>
 
     <!-- Task details -->
     <div id="task-details" style="flex-grow: 1; width: calc(100% - 220px); max-height: 100%; background-color: #516ED045; padding: 20px; border-radius: 10px; box-sizing: border-box; overflow-y: auto;">
-    <h3>Select a task to view details</h3>
+    <h3>Selecione uma task para visualizar detalhes</h3>
     </div>
     </div>
     </div>
@@ -130,16 +154,16 @@ function displayTrailScreen(name, date, reminder) {
 function displayTaskDetails(taskName, taskId) {
     const taskDetailsContainer = document.getElementById("task-details");
     taskDetailsContainer.innerHTML = `
-    <h3>Task Details</h3>
-    <p>Task Name: ${taskName}</p>
+    <h3>Detalhes da task</h3>
+    <p>Nome da task: ${taskName}</p>
     <p>Status:
     <select id="task-status">
-    <option value="Ongoing">Ongoing</option>
-    <option value="Concluded">Concluded</option>
+    <option value="Ongoing">Em andamento</option>
+    <option value="Concluded">Concluído</option>
     </select>
     </p>
-    <button onclick="deleteTask('${taskId}')">Delete Task</button>
-    <textarea id="task-notes" placeholder="Task notes..." style="resize:none; width: 100%; height: 450px; margin-top: 10px;"></textarea>
+    <button onclick="deleteTask('${taskId}')">Deletar Task</button>
+    <textarea id="task-notes" placeholder="Comece suas anotações..." style="resize:none; width: 100%; height: 450px; margin-top: 10px;"></textarea>
     `;
 
     // Add event listener to status change dropdown
